@@ -87,4 +87,17 @@ class QuizGame:
         for number, quiz in enumerate(self.quizzes, start=1):
             print(f"[{number}] {quiz.question}")
         print(THIN_LINE)
+        
+    # ================================== 4. 점수 확인 ==================================
+    def show_score(self):
+        print()
+        if not self.best_record:
+            print("아직 퀴즈를 푼 기록이 없습니다. [1. 퀴즈 풀기]로 도전해 보세요!")
+            return
  
+        correct = self.best_record["correct"]
+        total = self.best_record["total"]
+        played_at = self.best_record.get("played_at", "기록 없음")
+ 
+        print(f"🏆 최고 점수: {self.best_score}점 ({total}문제 중 {correct}문제 정답)")
+        print(f"🕒 기록 시각: {played_at}")
