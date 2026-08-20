@@ -62,7 +62,7 @@ class QuizGame:
                 break
  
             actions[choice]()
-            
+
     # ================================== 2. 퀴즈 추가 ==================================
     def add_quiz(self):
         print()
@@ -74,3 +74,17 @@ class QuizGame:
         answer = read_int(f"정답 번호 (1-{CHOICE_COUNT}): ", 1, CHOICE_COUNT)
  
         self.quizzes.append(Quiz(question, choices, answer))
+
+    # ================================== 3. 퀴즈 목록 ==================================
+    def show_quiz_list(self):
+        print()
+        if not self.quizzes:
+            print("등록된 퀴즈가 없습니다. 먼저 [2. 퀴즈 추가]로 문제를 등록해 주세요.")
+            return
+ 
+        print(f"📋 등록된 퀴즈 목록 (총 {len(self.quizzes)}개)")
+        print(THIN_LINE)
+        for number, quiz in enumerate(self.quizzes, start=1):
+            print(f"[{number}] {quiz.question}")
+        print(THIN_LINE)
+ 
