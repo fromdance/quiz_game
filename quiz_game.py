@@ -62,3 +62,15 @@ class QuizGame:
                 break
  
             actions[choice]()
+            
+    # ================================== 2. 퀴즈 추가 ==================================
+    def add_quiz(self):
+        print()
+        print("새로운 퀴즈를 추가합니다.")
+ 
+        question = read_text("문제를 입력하세요: ")
+        # 선택지 입력은 정해진 '퀴즈 선택지 개수(CHOICE_COUNT)' 만큼 반복해서 이뤄짐
+        choices = [read_text(f"선택지 {number}: ") for number in range(1, CHOICE_COUNT + 1)]
+        answer = read_int(f"정답 번호 (1-{CHOICE_COUNT}): ", 1, CHOICE_COUNT)
+ 
+        self.quizzes.append(Quiz(question, choices, answer))
