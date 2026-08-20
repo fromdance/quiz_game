@@ -19,6 +19,8 @@ def main():
  
  
 def _safe_exit(game):
+    if game.save():
+        print("💾 현재까지의 데이터를 저장했습니다.")
     print("안전하게 종료합니다.")
  
  
