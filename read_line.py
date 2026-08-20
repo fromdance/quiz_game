@@ -3,7 +3,18 @@ def read_line(message):
     # 문자열 입력받아, 입력의 앞, 뒤 공백 제거
     return input(message).strip()
 
-def process_input(message, min_value, max_value):
+def read_text(message):
+    # 비어있지 않은 문자열을 받는 함수
+    while True:
+        value = read_line(message)
+        if not value:
+            print("입력이 비어 있습니다. 내용을 입력해 주세요.")
+            continue
+        return value
+
+
+def read_int(message, min_value, max_value):
+    # 주어진 범위(min_value ~ max_value) 사이의 숫자 값을 받는 함수
     while True:
         # 주어진 허용 범위(min_value ~ max_value)사이의 값을 받을 때 까지 반복
         line = read_line(message)

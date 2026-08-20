@@ -1,4 +1,10 @@
-from quiz import Quiz
+import json
+import os
+import random
+from datetime import datetime
+
+from quiz import Quiz, CHOICE_COUNT
+from read_line import read_int, read_text
 
 DEFAULT_QUIZ_DATA = [
     Quiz("'블랙 펜서'의 힘을 얻을 수 있는 허브는?", ["하트 허브", "민트 허브", "블랙 허브", "파워 허브"], 1),
@@ -8,3 +14,51 @@ DEFAULT_QUIZ_DATA = [
     Quiz("'블랙 팬서'의 시그니처 제스쳐와 함께 나오는 구호로 올바른 것은?", ["이범베!", "와칸다 포에버!", "와칸다 어쎔블!", "마예파!"]),
     Quiz("다음 중, 인피니티 스톤과 등장 영화의 연결이 잘못된 것은?", ["파워스톤 - 가디언즈 오브 갤럭시", "타임스톤 - 닥터 스트레인지", "마인드스톤 - 앤트맨", "스페이스 스톤 - 어벤저스"], 3)
 ]
+
+LINE = "=" * 40
+THIN_LINE = "-" * 40
+
+# 프로젝트 루트(이 파일이 있는 폴더)의 state.json 을 데이터 파일로 사용한다.
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+STATE_FILE = os.path.join(PROJECT_ROOT, "state.json")
+
+class QuizGame:
+    # 퀴즈 목록과 최고 점수를 가지고 게임을 진행하는 클래스.
+ 
+    def __init__(self, state_path=STATE_FILE):
+        self.state_path = state_path
+        self.quizzes = []
+        self.best_score = 0
+        self.best_record = None  # {"correct": 4, "total": 5, "played_at": "..."}
+
+    # ================================== 메뉴 ==================================
+    def show_menu(self):
+        print()
+        print(LINE)
+        print("🎯 나만의 퀴즈 게임 🎯")
+        print(LINE)
+        print("1. 퀴즈 풀기")
+        print("2. 퀴즈 추가")
+        print("3. 퀴즈 목록")
+        print("4. 점수 확인")
+        print("5. 종료")
+        print(LINE)
+ 
+    def run(self):
+        """메뉴를 반복해서 보여 주며 선택한 기능을 실행한다."""
+        actions = {
+            1: self.play,
+            2: self.add_quiz,
+            3: self.show_quiz_list,
+            4: self.show_score,
+        }
+ 
+        while True:
+            self.show_menu()
+            choice = read_int("선택: ", 1, 5)
+ 
+            if choice == 5:
+                print("게임을 종료합니다. 데이터를 저장했습니다.")
+                break
+ 
+            actions[choice]()
