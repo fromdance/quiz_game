@@ -31,6 +31,83 @@ class QuizGame:
         self.best_score = 0
         self.best_record = None  # {"correct": 4, "total": 5, "played_at": "..."}
 
+    def load(self):
+        # state.json 에서 데이터를 불러온다. 파일이 없거나 손상되면 기본 데이터를 사용한다.
+        if not os.path.exists(self.state_path):
+            self.quizzes = DEFAULT_QUIZ_DATA
+            print(f"📂 저장된 데이터가 없어 기본 퀴즈로 시작합니다. (퀴즈 {len(self.quizzes)}개)")
+            return
+ 
+        try:
+            with open(self.state_path, "r", encoding="utf-8") as file:
+                data = json.load(file)
+            self._apply_state(data)
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError, TypeError) as error:
+            print(f"⚠️ 데이터 파일을 읽을 수 없습니다: {error}")
+            self.quizzes = DEFAULT_QUIZ_DATA()
+            self.best_score = 0
+            self.best_record = None
+            print(f"🔄 기본 퀴즈 데이터로 복구했습니다. (퀴즈 {len(self.quizzes)}개)")
+        else:
+            print(
+                f"📂 저장된 데이터를 불러왔습니다. "
+                f"(퀴즈 {len(self.quizzes)}개, 최고점수 {self.best_score}점)"
+            )
+ 
+    def _apply_state(self, data):
+        # 불러온 딕셔너리를 검사한 뒤 게임 상태에 반영한다.
+        if not isinstance(data, dict):
+            raise ValueError("최상위 데이터는 딕셔너리여야 합니다.")
+ 
+        raw_quizzes = data.get("quizzes")
+        if not isinstance(raw_quizzes, list):
+            raise ValueError("quizzes 는 목록이어야 합니다.")
+ 
+        quizzes = [Quiz.from_dict(item) for item in raw_quizzes]
+ 
+        best_score = data.get("best_score", 0)
+        if isinstance(best_score, bool) or not isinstance(best_score, int) or best_score < 0:
+            best_score = 0
+ 
+        record = data.get("best_record")
+        if not self._is_valid_record(record):
+            record = None
+ 
+        self.quizzes = quizzes
+        self.best_score = best_score
+        self.best_record = record
+ 
+    def _is_valid_record(self, record):
+        if not isinstance(record, dict):
+            return False
+        correct = record.get("correct")
+        total = record.get("total")
+        for value in (correct, total):
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                return False
+        return total > 0 and correct <= total
+    
+    def save(self):
+        # 현재 퀴즈 목록과 최고 점수를 state.json 에 저장한다.
+        data = {
+            "quizzes": [quiz.to_dict() for quiz in self.quizzes],
+            "best_score": self.best_score,
+        }
+        if self.best_record:
+            data["best_record"] = self.best_record
+ 
+        temp_path = self.state_path + ".tmp"
+        try:
+            # 임시 파일에 먼저 쓰고 교체해서, 저장 중 오류가 나도 기존 파일이 깨지지 않게 한다.
+            with open(temp_path, "w", encoding="utf-8") as file:
+                json.dump(data, file, ensure_ascii=False, indent=2)
+            os.replace(temp_path, self.state_path)
+            return True
+        except (OSError, TypeError, ValueError) as error:
+            print(f"⚠️ 데이터를 저장하지 못했습니다: {error}")
+            return False
+ 
+
     # ================================== 메뉴 ==================================
     def show_menu(self):
         print()
