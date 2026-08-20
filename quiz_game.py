@@ -63,6 +63,56 @@ class QuizGame:
  
             actions[choice]()
 
+    # ================================== 1. 퀴즈 풀기 ==================================
+    def play(self):
+        if not self.quizzes:
+            print("등록된 퀴즈가 없습니다. 먼저 [2. 퀴즈 추가]로 문제를 등록해 주세요.")
+            return
+ 
+        available = len(self.quizzes)
+        total = read_int(f"몇 문제를 풀까요? (1-{available}): ", 1, available)
+ 
+        # 랜덤 출제
+        # random.sample(리스트, N) : 리스트 내에서 고유한 요소 N개를 선택해 반환
+        selected = random.sample(self.quizzes, total)
+ 
+        print()
+        print(f"📝 퀴즈를 시작합니다! (총 {total}문제)")
+ 
+        correct_count = 0
+        for number, quiz in enumerate(selected, start=1):
+            print(THIN_LINE)
+            quiz.show(number)
+            picked = read_int(f"정답 입력 (1-{CHOICE_COUNT}): ", 1, CHOICE_COUNT)
+ 
+            if quiz.is_correct(picked):
+                correct_count += 1
+                print("✅ 정답입니다!")
+            else:
+                print(f"❌ 오답입니다. 정답은 {quiz.answer}번 ({quiz.answer_text()}) 입니다.")
+ 
+        self._finish_game(correct_count, total)
+ 
+    def _finish_game(self, correct_count, total):
+        # 게임 결과를 출력하고 최고 점수를 갱신한다.
+        score = round(correct_count / total * 100)
+ 
+        print(LINE)
+        print(f"🏆 결과: {total}문제 중 {correct_count}문제 정답! ({score}점)")
+
+        # 기존의 최고점보다 높으면 갱신
+        if score > self.best_score:
+            self.best_score = score
+            self.best_record = {
+                "correct": correct_count,
+                "total": total,
+                "played_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            print("새로운 최고 점수입니다!")
+        else:
+            print(f"현재 최고 점수는 {self.best_score}점입니다.")
+        print(LINE)
+
     # ================================== 2. 퀴즈 추가 ==================================
     def add_quiz(self):
         print()
